@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QRFORGE — Générateur de QR Codes</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23111'/><rect x='4' y='4' width='10' height='10' rx='1' fill='%23f5e642'/><rect x='5' y='5' width='8' height='8' rx='0.5' fill='%23111'/><rect x='6' y='6' width='6' height='6' rx='0' fill='%23f5e642'/><rect x='18' y='4' width='10' height='10' rx='1' fill='%23f5e642'/><rect x='19' y='5' width='8' height='8' rx='0.5' fill='%23111'/><rect x='20' y='6' width='6' height='6' rx='0' fill='%23f5e642'/><rect x='4' y='18' width='10' height='10' rx='1' fill='%23f5e642'/><rect x='5' y='19' width='8' height='8' rx='0.5' fill='%23111'/><rect x='6' y='20' width='6' height='6' rx='0' fill='%23f5e642'/><rect x='18' y='18' width='3' height='3' fill='%23f5e642'/><rect x='22' y='18' width='3' height='3' fill='%23f5e642'/><rect x='26' y='18' width='3' height='3' fill='%23f5e642'/><rect x='18' y='22' width='3' height='3' fill='%23f5e642'/><rect x='22' y='22' width='3' height='3' fill='%23f5e642'/><rect x='18' y='26' width='3' height='3' fill='%23f5e642'/><rect x='26' y='26' width='3' height='3' fill='%23f5e642'/></svg>" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23111'/%3E%3C!-- top-left finder --%3E%3Crect x='2' y='2' width='9' height='9' rx='1.5' fill='%23f5e642'/%3E%3Crect x='3.5' y='3.5' width='6' height='6' rx='0.8' fill='%23111'/%3E%3Crect x='5' y='5' width='3' height='3' rx='0' fill='%23f5e642'/%3E%3C!-- top-right finder --%3E%3Crect x='21' y='2' width='9' height='9' rx='1.5' fill='%23f5e642'/%3E%3Crect x='22.5' y='3.5' width='6' height='6' rx='0.8' fill='%23111'/%3E%3Crect x='24' y='5' width='3' height='3' rx='0' fill='%23f5e642'/%3E%3C!-- bottom-left finder --%3E%3Crect x='2' y='21' width='9' height='9' rx='1.5' fill='%23f5e642'/%3E%3Crect x='3.5' y='22.5' width='6' height='6' rx='0.8' fill='%23111'/%3E%3Crect x='5' y='24' width='3' height='3' rx='0' fill='%23f5e642'/%3E%3C!-- heart data modules --%3E%3Cpath d='M22 22.5c0-1.2-1-2-2-2s-2 .8-2 2c0 2 2 3.5 2 3.5s2-1.5 2-3.5z' fill='%23f5e642'/%3E%3Cpath d='M27 22.5c0-1.2-1-2-2-2s-2 .8-2 2c0 2 2 3.5 2 3.5s2-1.5 2-3.5z' fill='%23f5e642'/%3E%3Crect x='14' y='21' width='2.5' height='2.5' fill='%23f5e642'/%3E%3Crect x='14' y='25' width='2.5' height='2.5' fill='%23f5e642'/%3E%3Crect x='14' y='14' width='2.5' height='2.5' fill='%23f5e642'/%3E%3Crect x='17' y='14' width='2.5' height='2.5' fill='%23f5e642'/%3E%3Crect x='20' y='14' width='2.5' height='2.5' fill='%23f5e642'/%3E%3Crect x='14' y='17' width='2.5' height='2.5' fill='%23f5e642'/%3E%3Crect x='23' y='14' width='2.5' height='2.5' fill='%23f5e642'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
@@ -83,7 +83,7 @@
           <div class="content-form" id="form-text">
             <div class="form-row">
               <span class="sub-label">Texte libre</span>
-              <textarea class="qr-input" id="textInput" rows="4" placeholder="-10% sur tout le magasin 🛍️"></textarea>
+              <textarea class="qr-input" id="textInput" rows="4" placeholder="-10% sur tout le magasin ! 🛍️"></textarea>
             </div>
           </div>
 
@@ -246,70 +246,16 @@
 
           <!-- FILE -->
           <div class="content-form" id="form-file">
-            <div class="file-mode-tabs">
-              <button class="file-mode-btn active" data-mode="embed">Encoder direct (&lt;2 Ko)</button>
-              <button class="file-mode-btn" data-mode="upload">Héberger via file.io (jusqu'à 2 Go)</button>
+            <div class="form-row">
+              <span class="sub-label">Lien vers le fichier hébergé</span>
+              <input type="url" class="text-input" id="fileUrlInput" placeholder="https://drive.google.com/… ou https://dropbox.com/…" />
             </div>
-
-            <!-- MODE: embed -->
-            <div id="filemode-embed">
-              <p class="section-hint">Encodez un petit fichier directement dans le QR. Limite stricte : ~2 Ko bruts.</p>
-              <div class="file-qr-drop" id="fileQrDrop">
-                <input type="file" id="fileQrInput" accept="image/*,application/pdf" hidden />
-                <div class="file-qr-idle" id="fileQrIdle">
-                  <span class="drop-icon">⊞</span>
-                  <span>Glissez un fichier ou <button class="inline-btn" id="fileQrPickBtn">parcourez</button></span>
-                  <span class="file-qr-hint">Max ~2 Ko bruts (images très légères uniquement)</span>
-                </div>
-                <div class="file-qr-loaded" id="fileQrLoaded" style="display:none;">
-                  <div class="file-qr-info">
-                    <span class="file-qr-icon" id="fileQrIcon">📄</span>
-                    <div class="file-qr-meta">
-                      <span class="file-qr-name" id="fileQrName">—</span>
-                      <span class="file-qr-size" id="fileQrSize">—</span>
-                    </div>
-                  </div>
-                  <div class="file-qr-actions">
-                    <button class="primary-btn small" id="fileQrEncode">▶ Encoder dans le QR</button>
-                    <button class="remove-logo-btn" id="fileQrRemove">✕ Retirer</button>
-                  </div>
-                  <div class="file-qr-warning" id="fileQrWarning" style="display:none;">
-                    ⚠ Fichier trop volumineux. Utilisez le mode "Héberger via file.io" ci-dessus.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- MODE: upload via file.io -->
-            <div id="filemode-upload" style="display:none;">
-              <p class="section-hint">Votre fichier est uploadé sur <strong>file.io</strong> (lien valable 14 jours, téléchargement unique). Aucune inscription requise.</p>
-              <div class="file-qr-drop" id="fileIoDrop">
-                <input type="file" id="fileIoInput" hidden />
-                <div class="file-io-idle" id="fileIoIdle">
-                  <span class="drop-icon">☁</span>
-                  <span>Glissez n'importe quel fichier ou <button class="inline-btn" id="fileIoPickBtn">parcourez</button></span>
-                  <span class="file-qr-hint">PDF, images, documents — jusqu'à 2 Go</span>
-                </div>
-                <div class="file-io-loaded" id="fileIoLoaded" style="display:none;">
-                  <div class="file-qr-info">
-                    <span class="file-qr-icon" id="fileIoIcon">📄</span>
-                    <div class="file-qr-meta">
-                      <span class="file-qr-name" id="fileIoName">—</span>
-                      <span class="file-qr-size" id="fileIoSize">—</span>
-                    </div>
-                  </div>
-                  <button class="primary-btn small" id="fileIoUpload">☁ Uploader &amp; Générer QR</button>
-                  <div class="file-io-progress" id="fileIoProgress" style="display:none;">
-                    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-                    <span class="progress-label" id="progressLabel">Upload en cours…</span>
-                  </div>
-                  <div class="file-io-result" id="fileIoResult" style="display:none;">
-                    <span class="result-ok">✓ Uploadé ! Le QR code pointe vers le lien temporaire.</span>
-                    <a class="result-link" id="fileIoLink" href="#" target="_blank">Voir le lien →</a>
-                    <span class="result-warn">⚠ Lien valable 14 jours · Téléchargement unique</span>
-                  </div>
-                </div>
-              </div>
+            <div class="file-url-hint">
+              <span>Hébergez votre fichier sur</span>
+              <a href="https://drive.google.com" target="_blank">Google Drive</a>
+              <a href="https://www.dropbox.com" target="_blank">Dropbox</a>
+              <a href="https://file.io" target="_blank">file.io</a>
+              <span>puis collez le lien de partage ci-dessus.</span>
             </div>
           </div>
 
@@ -348,81 +294,16 @@
             </div>
           </div>
 
-          <!-- Corner shapes -->
-          <div class="subsection-label">TYPE DE CODE</div>
-          <div class="corner-grid">
-            <button class="corner-btn active" data-corner="square" title="Carré classique">
-              <svg width="32" height="32" viewBox="0 0 32 32"><rect x="4" y="4" width="11" height="11" rx="0" fill="currentColor"/><rect x="17" y="4" width="11" height="11" rx="0" fill="currentColor" opacity=".3"/><rect x="4" y="17" width="11" height="11" rx="0" fill="currentColor" opacity=".3"/></svg>
-              <span>Carré</span>
-            </button>
-            <button class="corner-btn" data-corner="rounded" title="Arrondi">
-              <svg width="32" height="32" viewBox="0 0 32 32"><rect x="4" y="4" width="11" height="11" rx="3" fill="currentColor"/><rect x="17" y="4" width="11" height="11" rx="3" fill="currentColor" opacity=".3"/><rect x="4" y="17" width="11" height="11" rx="3" fill="currentColor" opacity=".3"/></svg>
-              <span>Arrondi</span>
-            </button>
-            <button class="corner-btn" data-corner="extra-rounded" title="Extra arrondi">
-              <svg width="32" height="32" viewBox="0 0 32 32"><rect x="4" y="4" width="11" height="11" rx="5.5" fill="currentColor"/><rect x="17" y="4" width="11" height="11" rx="5.5" fill="currentColor" opacity=".3"/><rect x="4" y="17" width="11" height="11" rx="5.5" fill="currentColor" opacity=".3"/></svg>
-              <span>Circulaire</span>
-            </button>
-            <button class="corner-btn" data-corner="heart" title="Cœurs">
-              <svg width="32" height="32" viewBox="0 0 32 32"><path d="M9.5 5.5C7.5 5.5 5.5 7 5.5 9.5c0 4 4 7 4 7s4-3 4-7c0-2.5-2-4-4-4z" fill="currentColor"/><path d="M22.5 5.5C20.5 5.5 18.5 7 18.5 9.5c0 4 4 7 4 7s4-3 4-7c0-2.5-2-4-4-4z" fill="currentColor" opacity=".3"/><path d="M9.5 18.5C7.5 18.5 5.5 20 5.5 22.5c0 4 4 7 4 7s4-3 4-7c0-2.5-2-4-4-4z" fill="currentColor" opacity=".3"/></svg>
-              <span>Cœurs</span>
-            </button>
-          </div>
-
-          <!-- Sticker effect -->
-          <div class="subsection-label">EFFET AUTOCOLLANT</div>
-          <div class="sticker-grid">
-            <button class="sticker-btn active" data-sticker="none">Aucun</button>
-            <button class="sticker-btn" data-sticker="white-border">Bordure blanche</button>
-            <button class="sticker-btn" data-sticker="shadow">Ombre portée</button>
-            <button class="sticker-btn" data-sticker="rounded-card">Carte arrondie</button>
-            <button class="sticker-btn" data-sticker="badge">Badge</button>
-          </div>
         </div>
 
         <!-- 04 LOGO -->
         <div class="panel-section">
           <label class="field-label"><span class="label-num">04</span> LOGO AU CENTRE</label>
 
-          <!-- Preset logos -->
+          <!-- Preset logos — images populated by JS on page load -->
           <div class="subsection-label">LOGOS PRÉINTÉGRÉS</div>
-          <div class="preset-logos-grid">
-            <button class="preset-logo-btn" data-logo="facebook" title="Facebook">
-              <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-              <span>Facebook</span>
-            </button>
-            <button class="preset-logo-btn" data-logo="instagram" title="Instagram">
-              <svg viewBox="0 0 24 24"><defs><radialGradient id="ig" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><path fill="url(#ig)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-              <span>Instagram</span>
-            </button>
-            <button class="preset-logo-btn" data-logo="whatsapp" title="WhatsApp">
-              <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              <span>WhatsApp</span>
-            </button>
-            <button class="preset-logo-btn" data-logo="youtube" title="YouTube">
-              <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
-              <span>YouTube</span>
-            </button>
-            <button class="preset-logo-btn" data-logo="tiktok" title="TikTok">
-              <svg viewBox="0 0 24 24" fill="#000000"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
-              <span>TikTok</span>
-            </button>
-            <button class="preset-logo-btn" data-logo="linkedin" title="LinkedIn">
-              <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-              <span>LinkedIn</span>
-            </button>
-            <button class="preset-logo-btn" data-logo="scan-me" title="Scan Me">
-              <svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="#111"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="white" font-family="Arial" font-size="7" font-weight="bold">SCAN ME</text></svg>
-              <span>Scan Me</span>
-            </button>
-            <button class="preset-logo-btn" data-logo="camera" title="Camera / Scan">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"/></svg>
-              <span>Caméra</span>
-            </button>
-            <button class="preset-logo-btn" data-logo="custom">
-              <span style="font-size:22px;">⊕</span>
-              <span>Mon logo</span>
-            </button>
+          <div class="preset-logos-grid" id="presetLogosGrid">
+            <!-- buttons injected by JS -->
           </div>
 
           <div class="logo-upload-area" id="logoDropZone" style="margin-top:12px;">

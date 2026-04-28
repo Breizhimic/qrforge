@@ -13,13 +13,7 @@ const state = {
   lastFg: '#000000',
   lastBg: '#ffffff',
   lastEc: 'M',
-  cornerStyle: 'square',    // square | rounded | extra-rounded | heart
-  stickerStyle: 'none',
   batchItems: [],
-  pendingFile: null,
-  pendingFileName: '',
-  _fileContent: '',
-  fileMode: 'embed',        // embed | upload
 };
 
 // ── DOM helpers ────────────────────────────────────────────────
@@ -122,19 +116,31 @@ function buildQRContent() {
       const first = $('vcardFirst').value.trim();
       const last  = $('vcardLast').value.trim();
       if (!first && !last) return '';
-      let v = `BEGIN:VCARD\r\nVERSION:3.0\r\n`;
-      v += `N:${last};${first};;;\r\n`;
-      v += `FN:${first} ${last}\r\n`;
-      const org   = $('vcardOrg').value.trim();   if (org)   v += `ORG:${org}\r\n`;
-      const title = $('vcardTitle').value.trim();  if (title) v += `TITLE:${title}\r\n`;
-      const phone = $('vcardPhone').value.trim();  if (phone) v += `TEL:${phone}\r\n`;
-      const email = $('vcardEmail').value.trim();  if (email) v += `EMAIL:${email}\r\n`;
-      const url   = $('vcardUrl').value.trim();    if (url)   v += `URL:${url}\r\n`;
-      const addr  = $('vcardAddress').value.trim();if (addr)  v += `ADR:;;${addr};;;;\r\n`;
+      // Use only filled fields to keep size minimal
+      const org   = $('vcardOrg').value.trim();
+      const title = $('vcardTitle').value.trim();
+      const phone = $('vcardPhone').value.trim();
+      const email = $('vcardEmail').value.trim();
+      const url   = $('vcardUrl').value.trim();
+      const addr  = $('vcardAddress').value.trim();
+      let v = `BEGIN:VCARD\nVERSION:3.0\n`;
+      v += `N:${last};${first};;;\n`;
+      v += `FN:${first}${last ? ' ' + last : ''}\n`;
+      if (org)   v += `ORG:${org}\n`;
+      if (title) v += `TITLE:${title}\n`;
+      if (phone) v += `TEL:${phone}\n`;
+      if (email) v += `EMAIL:${email}\n`;
+      if (url)   v += `URL:${url}\n`;
+      if (addr)  v += `ADR:;;${addr};;;;\n`;
       v += `END:VCARD`;
+      // Auto-switch to L correction for max capacity
+      if (!state.savedEcLevel) {
+        state.savedVcardEc = $('ecLevel').value;
+        $('ecLevel').value = 'L';
+      }
       return v;
     }
-    case 'file': return state._fileContent || '';
+    case 'file': return ($('fileUrlInput') && $('fileUrlInput').value.trim()) || '';
     default: return '';
   }
 }
@@ -145,6 +151,7 @@ const ALL_INPUTS = [
   'phoneCountry','phoneNumber','wifiSSID','wifiPassword','wifiHidden',
   'smsCountry','smsNumber','smsMessage',
   'vcardFirst','vcardLast','vcardOrg','vcardTitle','vcardPhone','vcardEmail','vcardUrl','vcardAddress',
+  'fileUrlInput',
   'qrSize','ecLevel','fgColor','bgColor',
 ];
 ALL_INPUTS.forEach(id => {
@@ -162,71 +169,86 @@ $('toggleWifiPw').addEventListener('click', () => {
 });
 
 // ── Corner style picker ────────────────────────────────────────
-$$('.corner-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    $$('.corner-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    state.cornerStyle = btn.dataset.corner;
-    scheduleQR();
-  });
-});
+// ── Preset logos — render SVG to PNG then inject buttons ────────
+const LOGOS = [
+  { key: 'facebook',  label: 'Facebook',  svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#1877F2"/><path fill="white" d="M67 100V61h13l2-16H67v-9c0-5 1-8 8-8h7V13c-1 0-5-1-11-1-11 0-19 7-19 20v11H39v16h13v39z"/></svg>` },
+  { key: 'instagram', label: 'Instagram', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="ig3" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="25%" stop-color="#e6683c"/><stop offset="50%" stop-color="#dc2743"/><stop offset="75%" stop-color="#cc2366"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#ig3)"/><rect x="20" y="20" width="60" height="60" rx="16" fill="none" stroke="white" stroke-width="6"/><circle cx="50" cy="50" r="16" fill="none" stroke="white" stroke-width="6"/><circle cx="73" cy="27" r="5" fill="white"/></svg>` },
+  { key: 'whatsapp',  label: 'WhatsApp',  svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#25D366"/><path fill="white" d="M50 15C30 15 14 31 14 51c0 7 2 13 6 18L14 86l18-6c5 3 11 5 18 5 20 0 36-16 36-36S70 15 50 15zm21 50c-1 2-4 4-6 4-1 0-4 0-13-4-8-4-13-11-14-12-1-1-5-7-5-13s3-9 4-10c1-2 3-2 4-2h2c1 0 2 0 3 3l4 9c0 1 0 2-1 3l-2 2c-1 1-1 2 0 3 1 2 5 7 9 10 4 2 7 3 8 4 1 0 2 0 3-1l2-3c1-1 2-1 3-1l8 4c1 1 2 1 2 3 0 1-1 4-2 5z"/></svg>` },
+  { key: 'youtube',   label: 'YouTube',   svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#FF0000"/><path fill="white" d="M82 35s-1-6-4-8c-3-4-7-4-9-4C58 22 50 22 50 22s-8 0-19 1c-2 0-6 1-9 4-3 2-4 8-4 8S17 41 17 48v6c0 7 1 13 1 13s1 6 4 8c3 4 8 3 10 4C39 80 50 80 50 80s8 0 19-2c2 0 6-1 9-4 3-2 4-8 4-8s1-6 1-13v-6c0-7-1-13-1-13zM42 62V38l24 12-24 12z"/></svg>` },
+  { key: 'tiktok',    label: 'TikTok',    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#010101"/><path fill="#69C9D0" d="M72 25c-5-1-9-4-12-8h-9v48c0 5-4 9-9 9s-9-4-9-9 4-9 9-9c1 0 2 0 3 1V48c-1 0-2 0-3 0-10 0-18 8-18 18s8 18 18 18 18-8 18-18V41c4 3 8 4 12 5V37c-2 0-7-2-10-6l10-6z"/><path fill="white" d="M62 35c3 4 7 7 12 8v9c-4-1-8-2-12-5v26c0 10-8 18-18 18s-18-8-18-18 8-18 18-18c1 0 2 0 3 0v9c-1 0-2-1-3-1-5 0-9 4-9 9s4 9 9 9 9-4 9-9V17h9c3 4 7 7 12 8"/></svg>` },
+  { key: 'linkedin',  label: 'LinkedIn',  svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#0A66C2"/><path fill="white" d="M25 38h15v47H25zm7-5a9 9 0 110-18 9 9 0 010 18zm55 52H72V62c0-4-1-9-7-9s-8 4-8 8v24H42V38h14v6c2-3 6-7 13-7 14 0 18 9 18 21z"/></svg>` },
+  { key: 'scan-me',  label: 'Scan Me',   svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="12" fill="#111"/><rect x="10" y="10" width="28" height="28" rx="4" fill="none" stroke="#f5e642" stroke-width="4"/><rect x="17" y="17" width="14" height="14" fill="#f5e642"/><rect x="62" y="10" width="28" height="28" rx="4" fill="none" stroke="#f5e642" stroke-width="4"/><rect x="69" y="17" width="14" height="14" fill="#f5e642"/><rect x="10" y="62" width="28" height="28" rx="4" fill="none" stroke="#f5e642" stroke-width="4"/><rect x="17" y="69" width="14" height="14" fill="#f5e642"/><rect x="62" y="62" width="8" height="8" fill="#f5e642"/><rect x="75" y="62" width="8" height="8" fill="#f5e642"/><rect x="62" y="75" width="8" height="8" fill="#f5e642"/><rect x="75" y="75" width="8" height="8" fill="#f5e642"/><rect x="10" y="42" width="80" height="4" fill="#f5e642" opacity=".4"/><text x="50" y="97" text-anchor="middle" fill="#f5e642" font-family="Arial" font-size="9" font-weight="bold">SCAN ME</text></svg>` },
+  { key: 'camera',   label: 'Caméra',    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#555"/><path fill="white" d="M80 35H67l-6-9H39l-6 9H20c-4 0-8 4-8 8v35c0 4 4 8 8 8h60c4 0 8-4 8-8V43c0-4-4-8-8-8zM50 76a18 18 0 110-36 18 18 0 010 36zm0-8a10 10 0 100-20 10 10 0 000 20z"/></svg>` },
+  { key: 'custom',   label: 'Mon logo',  svg: null },
+];
 
-// ── Sticker effect picker ──────────────────────────────────────
-$$('.sticker-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    $$('.sticker-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    state.stickerStyle = btn.dataset.sticker;
-    applyStickerEffect();
+// Render SVG to PNG via blob URL + canvas
+function svgToPng(svgStr, size = 100) {
+  return new Promise(resolve => {
+    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const url  = URL.createObjectURL(blob);
+    const img  = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      c.getContext('2d').drawImage(img, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/png'));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
   });
-});
+}
 
-function applyStickerEffect() {
-  const stage = $('qrStage');
-  stage.className = 'qr-stage';
-  if (state.stickerStyle !== 'none') {
-    stage.classList.add(`sticker-${state.stickerStyle}`);
+// Build preset logo buttons with rendered PNG thumbnails
+async function initPresetLogos() {
+  const grid = $('presetLogosGrid');
+  for (const logo of LOGOS) {
+    const btn = document.createElement('button');
+    btn.className = 'preset-logo-btn';
+    btn.dataset.logo = logo.key;
+    btn.title = logo.label;
+
+    if (logo.svg) {
+      const pngUrl = await svgToPng(logo.svg, 100);
+      const imgEl = document.createElement('img');
+      imgEl.src = pngUrl || '';
+      imgEl.width = 32; imgEl.height = 32;
+      imgEl.style.borderRadius = '4px';
+      btn.appendChild(imgEl);
+      // Cache PNG for canvas use
+      btn.dataset.pngUrl = pngUrl || '';
+    } else {
+      const sp = document.createElement('span');
+      sp.style.fontSize = '22px';
+      sp.textContent = '⊕';
+      btn.appendChild(sp);
+    }
+
+    const label = document.createElement('span');
+    label.textContent = logo.label;
+    btn.appendChild(label);
+
+    btn.addEventListener('click', async () => {
+      if (logo.key === 'custom') { $('logoFile').click(); return; }
+      $$('.preset-logo-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const pngUrl = btn.dataset.pngUrl;
+      if (!pngUrl) return;
+      state.logoDataURL = pngUrl;
+      $('logoPreviewImg').src = pngUrl;
+      $('dropContent').style.display = 'none';
+      $('logoPreviewWrap').style.display = 'flex';
+      if (!state.savedEcLevel) { state.savedEcLevel = $('ecLevel').value; $('ecLevel').value = 'H'; }
+      showToast('✓ Logo sélectionné — correction H activée');
+      scheduleQR();
+    });
+
+    grid.appendChild(btn);
   }
 }
 
-// ── Preset logo SVGs ────────────────────────────────────────────
-const PRESET_LOGO_SVG = {
-  facebook: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`,
-  instagram: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><radialGradient id="ig" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><path fill="url(#ig)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>`,
-  whatsapp: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`,
-  youtube: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>`,
-  tiktok: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>`,
-  linkedin: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>`,
-  'scan-me': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><rect width="60" height="60" rx="10" fill="#111"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="10" font-weight="bold">SCAN ME</text></svg>`,
-  camera: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5"><path d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/></svg>`,
-};
-
-// Convert SVG string to Data URL
-function svgToDataURL(svgStr) {
-  return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgStr)));
-}
-
-// ── Preset logo picker ─────────────────────────────────────────
-$$('.preset-logo-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const key = btn.dataset.logo;
-    if (key === 'custom') {
-      $('logoFile').click();
-      return;
-    }
-    $$('.preset-logo-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const svg = PRESET_LOGO_SVG[key];
-    if (!svg) return;
-    state.logoDataURL = svgToDataURL(svg);
-    $('logoPreviewImg').src = state.logoDataURL;
-    $('dropContent').style.display = 'none';
-    $('logoPreviewWrap').style.display = 'flex';
-    state.savedEcLevel = $('ecLevel').value;
-    $('ecLevel').value = 'H';
-    scheduleQR();
-  });
-});
+initPresetLogos();
 
 // ── Custom logo upload ─────────────────────────────────────────
 const logoDropZone = $('logoDropZone');
@@ -276,165 +298,6 @@ $('logoSize').addEventListener('input', e => {
   scheduleQR();
 });
 
-// ── File mode tabs ─────────────────────────────────────────────
-$$('.file-mode-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    $$('.file-mode-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    state.fileMode = btn.dataset.mode;
-    $('filemode-embed').style.display  = state.fileMode === 'embed'  ? 'block' : 'none';
-    $('filemode-upload').style.display = state.fileMode === 'upload' ? 'block' : 'none';
-  });
-});
-
-// ── File embed ─────────────────────────────────────────────────
-const fileQrDrop   = $('fileQrDrop');
-const fileQrInput  = $('fileQrInput');
-const fileQrIdle   = $('fileQrIdle');
-const fileQrLoaded = $('fileQrLoaded');
-
-$('fileQrPickBtn').addEventListener('click', e => { e.stopPropagation(); fileQrInput.click(); });
-fileQrDrop.addEventListener('click', () => { if (fileQrLoaded.style.display === 'none') fileQrInput.click(); });
-fileQrDrop.addEventListener('dragover', e => { e.preventDefault(); fileQrDrop.classList.add('drag-over'); });
-fileQrDrop.addEventListener('dragleave', () => fileQrDrop.classList.remove('drag-over'));
-fileQrDrop.addEventListener('drop', e => {
-  e.preventDefault(); fileQrDrop.classList.remove('drag-over');
-  const f = e.dataTransfer.files[0]; if (f) handleFileQr(f);
-});
-fileQrInput.addEventListener('change', e => { if (e.target.files[0]) handleFileQr(e.target.files[0]); });
-
-function handleFileQr(file) {
-  const isPDF = file.type === 'application/pdf';
-  const isImg = file.type.startsWith('image/');
-  if (!isPDF && !isImg) { showToast('⚠ Format non supporté'); return; }
-  $('fileQrName').textContent = file.name.length > 36 ? file.name.slice(0, 33) + '…' : file.name;
-  $('fileQrSize').textContent = formatBytes(file.size);
-  $('fileQrIcon').textContent = isPDF ? '📄' : '🖼️';
-  const tooBig = file.size > 2195;
-  $('fileQrWarning').style.display = tooBig ? 'flex' : 'none';
-  $('fileQrEncode').disabled = tooBig;
-  state.pendingFile = file;
-  state.pendingFileName = file.name;
-  fileQrIdle.style.display = 'none';
-  fileQrLoaded.style.display = 'flex';
-}
-
-$('fileQrEncode').addEventListener('click', () => {
-  const file = state.pendingFile;
-  if (!file || file.size > 2195) return;
-  const reader = new FileReader();
-  reader.onload = evt => {
-    state._fileContent = evt.target.result;
-    $('ecLevel').value = 'L';
-    scheduleQR();
-    showToast('✓ Fichier encodé');
-  };
-  reader.readAsDataURL(file);
-});
-
-$('fileQrRemove').addEventListener('click', e => {
-  e.stopPropagation();
-  state.pendingFile = null; state._fileContent = '';
-  fileQrInput.value = '';
-  fileQrIdle.style.display = 'flex';
-  fileQrLoaded.style.display = 'none';
-  scheduleQR();
-});
-
-// ── File.io upload ─────────────────────────────────────────────
-const fileIoDrop   = $('fileIoDrop');
-const fileIoInput  = $('fileIoInput');
-const fileIoIdle   = $('fileIoIdle');
-const fileIoLoaded = $('fileIoLoaded');
-
-$('fileIoPickBtn').addEventListener('click', e => { e.stopPropagation(); fileIoInput.click(); });
-fileIoDrop.addEventListener('click', e => { 
-  if (!e.target.closest('#fileIoLoaded')) fileIoInput.click(); 
-});
-fileIoDrop.addEventListener('dragover', e => { e.preventDefault(); fileIoDrop.classList.add('drag-over'); });
-fileIoDrop.addEventListener('dragleave', () => fileIoDrop.classList.remove('drag-over'));
-fileIoDrop.addEventListener('drop', e => {
-  e.preventDefault(); fileIoDrop.classList.remove('drag-over');
-  const f = e.dataTransfer.files[0]; if (f) handleFileIo(f);
-});
-fileIoInput.addEventListener('change', e => { if (e.target.files[0]) handleFileIo(e.target.files[0]); });
-
-function handleFileIo(file) {
-  $('fileIoName').textContent = file.name.length > 36 ? file.name.slice(0, 33) + '…' : file.name;
-  $('fileIoSize').textContent = formatBytes(file.size);
-  $('fileIoIcon').textContent = file.type === 'application/pdf' ? '📄' : file.type.startsWith('image/') ? '🖼️' : '📁';
-  state.pendingFileIo = file;
-  fileIoIdle.style.display = 'none';
-  fileIoLoaded.style.display = 'flex';
-  $('fileIoProgress').style.display = 'none';
-  $('fileIoResult').style.display = 'none';
-}
-
-$('fileIoUpload').addEventListener('click', async () => {
-  const file = state.pendingFileIo;
-  if (!file) return;
-
-  $('fileIoUpload').disabled = true;
-  $('fileIoProgress').style.display = 'flex';
-  $('fileIoResult').style.display = 'none';
-  $('progressFill').style.width = '10%';
-  $('progressLabel').textContent = 'Envoi vers file.io…';
-
-  try {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    // file.io supports CORS natively — use fetch for cleaner handling
-    const response = await fetch('https://file.io/?expires=14d', {
-      method: 'POST',
-      body: formData,
-    });
-
-    $('progressFill').style.width = '90%';
-
-    if (!response.ok) {
-      throw new Error(`Erreur serveur : ${response.status}`);
-    }
-
-    const data = await response.json();
-    $('progressFill').style.width = '100%';
-
-    if (!data.success || !data.link) {
-      throw new Error(data.message || 'file.io n\'a pas retourné de lien');
-    }
-
-    $('progressLabel').textContent = '✓ Upload terminé !';
-    $('fileIoLink').href = data.link;
-    $('fileIoLink').textContent = data.link;
-    $('fileIoResult').style.display = 'flex';
-
-    // Switch to URL type with the generated link
-    $$('.type-btn')[0].click();
-    $('urlInput').value = data.link;
-    scheduleQR();
-    showToast('✓ Fichier hébergé — QR code généré !');
-
-  } catch(err) {
-    // Distinguish CORS / network errors from API errors
-    const isCors = err instanceof TypeError && err.message.includes('fetch');
-    $('progressFill').style.width = '0%';
-    if (isCors) {
-      $('progressLabel').textContent = '⚠ Bloqué par le navigateur (CORS) — voir ci-dessous';
-      // Show manual fallback
-      $('fileIoResult').style.display = 'flex';
-      $('fileIoLink').href = 'https://file.io';
-      $('fileIoLink').textContent = 'Uploadez manuellement sur file.io →';
-      $('fileIoResult').querySelector('.result-ok').textContent =
-        '⚠ Votre navigateur bloque l\'upload direct. Uploadez le fichier sur file.io ou Google Drive, puis collez le lien dans le champ URL.';
-    } else {
-      $('progressLabel').textContent = '⚠ ' + err.message;
-    }
-    showToast('⚠ ' + err.message, 4000);
-  } finally {
-    $('fileIoUpload').disabled = false;
-  }
-});
-
 // ── QR Generation ──────────────────────────────────────────────
 let qrTimer;
 function scheduleQR() {
@@ -443,7 +306,7 @@ function scheduleQR() {
 }
 
 async function generateQR() {
-  const text = state.currentType === 'file' ? (state._fileContent || '') : buildQRContent();
+  let text = buildQRContent();
   const size  = parseInt($('qrSize').value) || 300;
   const ec    = $('ecLevel').value;
   const fg    = $('fgColor').value;
@@ -461,6 +324,10 @@ async function generateQR() {
     return;
   }
 
+  // QRCode.js uses Latin-1 byte mode — accented chars cause "code length overflow".
+  // Normalize accents to ASCII equivalents before encoding.
+  const safeText = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
   placeholder.style.display = 'none';
   output.innerHTML = '';
 
@@ -472,7 +339,7 @@ async function generateQR() {
 
     await new Promise(resolve => {
       new QRCode(tempDiv, {
-        text, width: size, height: size,
+        text: safeText, width: size, height: size,
         colorDark: fg, colorLight: bg,
         correctLevel: QRCode.CorrectLevel[ec],
       });
@@ -482,14 +349,16 @@ async function generateQR() {
     const srcCanvas = tempDiv.querySelector('canvas');
     if (!srcCanvas) { document.body.removeChild(tempDiv); throw new Error('No canvas'); }
 
-    // Redraw with corner styles
-    const styledCanvas = applyCornerStyle(srcCanvas, fg, bg, state.cornerStyle);
+    // Clone src canvas before removing tempDiv
+    const cloned = document.createElement('canvas');
+    cloned.width = srcCanvas.width; cloned.height = srcCanvas.height;
+    cloned.getContext('2d').drawImage(srcCanvas, 0, 0);
     document.body.removeChild(tempDiv);
 
-    // Composite logo
+    // Composite logo if set
     let finalCanvas = state.logoDataURL
-      ? await compositeWithLogo(styledCanvas, state.logoDataURL, state.logoSize)
-      : styledCanvas;
+      ? await compositeWithLogo(cloned, state.logoDataURL, state.logoSize)
+      : cloned;
 
     // Display
     const displayCanvas = document.createElement('canvas');
@@ -500,8 +369,8 @@ async function generateQR() {
 
     // Cache
     state.currentPNG    = finalCanvas.toDataURL('image/png');
-    state.currentSVGRaw = buildSVG(finalCanvas, fg, bg, text, size);
-    state.lastText = text; state.lastSize = size;
+    state.currentSVGRaw = buildSVG(finalCanvas, fg, bg, safeText, size);
+    state.lastText = safeText; state.lastSize = size;
     state.lastFg = fg; state.lastBg = bg; state.lastEc = ec;
 
     $('metaChars').textContent = `${text.length} car.`;
@@ -516,126 +385,7 @@ async function generateQR() {
   }
 }
 
-// ── Corner style renderer ──────────────────────────────────────
-function applyCornerStyle(srcCanvas, fg, bg, style) {
-  if (style === 'square') return srcCanvas;
-
-  const w = srcCanvas.width;
-  const h = srcCanvas.height;
-  const ctx0 = srcCanvas.getContext('2d');
-  const img  = ctx0.getImageData(0, 0, w, h);
-
-  const out = document.createElement('canvas');
-  out.width = w; out.height = h;
-  const ctx = out.getContext('2d');
-
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = fg;
-
-  // ── Robust module size detection ──────────────────────────────
-  // Strategy: scan multiple rows near top (finder pattern area).
-  // The top-left finder pattern always starts at quiet-zone offset.
-  // Quiet zone = 4 modules. First finder bar = 7 modules wide, all dark.
-  // So: scan top 15% rows, find the longest uninterrupted dark run = 7 modules.
-  // Divide by 7 = module size.
-  const moduleSize = detectModuleSizeRobust(img, w, h);
-  if (!moduleSize || moduleSize < 1) { ctx.drawImage(srcCanvas, 0, 0); return out; }
-
-  const cols = Math.round(w / moduleSize);
-  const rows = Math.round(h / moduleSize);
-
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      // Sample center pixel of module
-      const px = Math.min(Math.round(col * moduleSize + moduleSize / 2), w - 1);
-      const py = Math.min(Math.round(row * moduleSize + moduleSize / 2), h - 1);
-      const isDark = img.data[(py * w + px) * 4] < 128;
-      if (!isDark) continue;
-      drawModule(ctx, col * moduleSize, row * moduleSize, moduleSize, style);
-    }
-  }
-  return out;
-}
-
-function detectModuleSizeRobust(img, w, h) {
-  const data = img.data;
-
-  // Scan rows in the top 20% to find finder pattern dark bar
-  // The finder pattern top row is: 7 consecutive dark modules
-  // We look for the longest consecutive dark run and divide by 7
-  const scanRows = Math.floor(h * 0.20);
-  let bestRun = 0;
-
-  for (let y = 0; y < scanRows; y++) {
-    let run = 0, maxRun = 0;
-    for (let x = 0; x < w; x++) {
-      const dark = data[(y * w + x) * 4] < 128;
-      if (dark) { run++; maxRun = Math.max(maxRun, run); }
-      else run = 0;
-    }
-    if (maxRun > bestRun) bestRun = maxRun;
-  }
-
-  if (bestRun >= 7) return Math.round(bestRun / 7);
-
-  // Fallback: scan left column for first dark run (quiet zone skip)
-  const midY = Math.floor(h * 0.1);
-  let firstDark = -1, firstLight = -1;
-  for (let x = 0; x < w; x++) {
-    const dark = data[(midY * w + x) * 4] < 128;
-    if (dark && firstDark < 0) firstDark = x;
-    else if (!dark && firstDark >= 0) { firstLight = x; break; }
-  }
-  if (firstDark >= 0 && firstLight > firstDark) return firstLight - firstDark;
-
-  return Math.round(w / 33); // last resort
-}
-
-function drawModule(ctx, x, y, s, style) {
-  if (style === 'heart') {
-    drawHeart(ctx, x, y, s, s);
-    ctx.fill();
-    return;
-  }
-  // For rounded styles: no padding so modules fill their cell fully except for corners
-  if (style === 'rounded') {
-    const r = s * 0.22;
-    roundRect(ctx, x, y, s, s, r);
-    ctx.fill();
-  } else if (style === 'extra-rounded') {
-    const r = s * 0.38;
-    roundRect(ctx, x, y, s, s, r);
-    ctx.fill();
-  } else {
-    ctx.fillRect(x, y, s, s);
-  }
-}
-
-function drawHeart(ctx, x, y, w, h) {
-  // Clean mathematical heart using cubic bezier — properly centered
-  const cx = x + w / 2;
-  const top = y + h * 0.27;
-  const bot = y + h * 0.95;
-  const lx  = x + w * 0.05;
-  const rx  = x + w * 0.95;
-  const lcp = x + w * 0.08; // left control inner
-  const rcp = x + w * 0.92; // right control inner
-
-  ctx.beginPath();
-  // Start at bottom tip
-  ctx.moveTo(cx, bot);
-  // Left side: bottom tip → left bump
-  ctx.bezierCurveTo(lx + w * 0.05, y + h * 0.75, lx, y + h * 0.5, lx, top + h * 0.03);
-  // Left top arc
-  ctx.bezierCurveTo(lx, y + h * 0.05, lcp + w * 0.1, y, cx - w * 0.02, top);
-  // Right top arc (mirror)
-  ctx.bezierCurveTo(cx + w * 0.02, y, rcp - w * 0.1, y + h * 0.05, rx, top + h * 0.03);
-  // Right side: right bump → bottom tip
-  ctx.bezierCurveTo(rx, y + h * 0.5, rx - w * 0.05, y + h * 0.75, cx, bot);
-  ctx.closePath();
-}
-
+// ── roundRect helper (used for logo background) ────────────────
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -658,15 +408,20 @@ function compositeWithLogo(srcCanvas, logoURL, logoPercent) {
       canvas.width = srcCanvas.width; canvas.height = srcCanvas.height;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(srcCanvas, 0, 0);
+
       const logoW = Math.round(srcCanvas.width * logoPercent / 100);
       const logoH = Math.round(logoW * img.naturalHeight / img.naturalWidth);
       const x = (canvas.width  - logoW) / 2;
       const y = (canvas.height - logoH) / 2;
-      const pad = 6;
+      const pad = Math.round(logoW * 0.12);
+      const r   = pad * 1.5;
+
+      // White circular/rounded background using our own roundRect helper
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.roundRect(x - pad, y - pad, logoW + pad * 2, logoH + pad * 2, 4);
+      roundRect(ctx, x - pad, y - pad, logoW + pad * 2, logoH + pad * 2, r);
       ctx.fill();
+
       ctx.drawImage(img, x, y, logoW, logoH);
       resolve(canvas);
     };

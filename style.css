@@ -1266,6 +1266,10 @@ body {
   gap: 8px;
 }
 
+.corner-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 .corner-btn {
   display: flex;
   flex-direction: column;
@@ -1286,31 +1290,8 @@ body {
 .corner-btn.active { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); }
 .corner-btn svg { color: currentColor; }
 
-/* Sticker picker */
-.sticker-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.sticker-btn {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.5px;
-  color: var(--text-2);
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 6px 12px;
-  cursor: pointer;
-  transition: all var(--transition);
-  white-space: nowrap;
-}
-
-.sticker-btn:hover { border-color: var(--border-accent); color: var(--text); }
-.sticker-btn.active { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); }
-
-/* Preset logos grid */
+/* ============================================================
+   FOOTER*/
 .preset-logos-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1412,26 +1393,27 @@ body {
   color: var(--text-3);
 }
 
+/* File.io result & manual fallback */
 .file-io-result {
   display: flex;
   flex-direction: column;
   gap: 6px;
   padding: 12px;
-  background: rgba(68,255,136,0.06);
-  border: 1px solid rgba(68,255,136,0.2);
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.25);
   border-radius: var(--radius);
 }
 
 .result-ok {
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--success, #22c55e);
+  color: #1a9e4a;
 }
 
 .result-link {
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--accent);
+  color: #1a9e4a;
   text-decoration: none;
   word-break: break-all;
 }
@@ -1444,12 +1426,71 @@ body {
   color: var(--text-3);
 }
 
-/* QR stage sticker effects */
-#qrStage.sticker-white-border { padding: 16px; background: #fff; border-radius: 8px; box-shadow: 0 0 0 12px #fff, 0 4px 24px rgba(0,0,0,0.15); }
-#qrStage.sticker-shadow { box-shadow: 0 8px 40px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2); }
-#qrStage.sticker-rounded-card { border-radius: 20px; padding: 20px; background: var(--bg-1); border: 2px solid var(--border); box-shadow: 0 4px 32px rgba(0,0,0,0.12); }
-/* Badge: outline ring around stage, no clipping overflow */
-#qrStage.sticker-badge { outline: 5px solid var(--accent); outline-offset: 8px; border-radius: 50%; box-shadow: 0 0 0 14px var(--bg-1), 0 4px 28px rgba(0,0,0,0.2); }
+.file-io-manual {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--accent-glow);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius);
+}
+
+.manual-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.manual-steps {
+  font-size: 12px;
+  color: var(--text-2);
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.5;
+}
+
+.manual-steps a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.manual-steps a:hover { text-decoration: underline; }
+
+.manual-paste-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.manual-paste-row .text-input { flex: 1; font-size: 12px; }
+
+.file-url-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-3);
+  padding: 8px 0 0;
+}
+
+.file-url-hint a {
+  color: var(--accent);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius);
+  padding: 2px 8px;
+}
+
+.file-url-hint a:hover { background: var(--accent-glow); }
 
 /* ============================================================
    FOOTER
