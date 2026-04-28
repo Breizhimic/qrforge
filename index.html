@@ -77,41 +77,42 @@
           <!-- URL -->
           <div class="content-form active" id="form-url">
             <div class="form-row">
-              <span class="sub-label">Adresse web</span>
-              <input type="url" class="text-input" id="urlInput" placeholder="https://exemple.com" />
+              <label class="sub-label" for="urlInput">Adresse web</label>
+              <input type="url" class="text-input" id="urlInput" placeholder="https://exemple.com" aria-label="URL du site web" />
             </div>
           </div>
 
           <!-- TEXT -->
           <div class="content-form" id="form-text">
             <div class="form-row">
-              <span class="sub-label">Texte libre</span>
-              <textarea class="qr-input" id="textInput" rows="4" placeholder="-10% sur tout le magasin ! 🛍️"></textarea>
+              <label class="sub-label" for="textInput">Texte libre</label>
+              <textarea class="qr-input" id="textInput" rows="4" placeholder="-10% sur tout le magasin ! 🛍️" aria-label="Texte à encoder dans le QR code"></textarea>
             </div>
           </div>
 
           <!-- EMAIL -->
           <div class="content-form" id="form-email">
             <div class="form-row">
-              <span class="sub-label">Adresse email</span>
-              <input type="email" class="text-input" id="emailAddress" placeholder="contact@exemple.com" />
+              <label class="sub-label" for="emailAddress">Adresse email</label>
+              <input type="email" class="text-input" id="emailAddress" placeholder="contact@exemple.com" aria-label="Adresse email du destinataire" />
             </div>
             <div class="form-row">
-              <span class="sub-label">Sujet (optionnel)</span>
-              <input type="text" class="text-input" id="emailSubject" placeholder="Demande d'information" />
+              <label class="sub-label" for="emailSubject">Sujet (optionnel)</label>
+              <input type="text" class="text-input" id="emailSubject" placeholder="Demande d'information" aria-label="Sujet de l'email" />
             </div>
             <div class="form-row">
-              <span class="sub-label">Corps du message (optionnel)</span>
-              <textarea class="qr-input" id="emailBody" rows="3" placeholder="Bonjour, je souhaite..."></textarea>
+              <label class="sub-label" for="emailBody">Corps du message (optionnel)</label>
+              <textarea class="qr-input" id="emailBody" rows="3" placeholder="Bonjour, je souhaite..." aria-label="Corps du message email"></textarea>
             </div>
           </div>
 
           <!-- PHONE -->
           <div class="content-form" id="form-phone">
             <div class="form-row">
-              <span class="sub-label">Numéro de téléphone</span>
+              <label class="sub-label" for="phoneNumber">Numéro de téléphone</label>
               <div class="phone-row">
-                <select class="select-input country-select" id="phoneCountry">
+                <label for="phoneCountry" class="sr-only">Indicatif pays</label>
+                <select class="select-input country-select" id="phoneCountry" aria-label="Indicatif pays pour le téléphone">
                   <option value="+33">🇫🇷 +33</option>
                   <option value="+32">🇧🇪 +32</option>
                   <option value="+41">🇨🇭 +41</option>
@@ -148,7 +149,7 @@
                   <option value="+61">🇦🇺 +61</option>
                   <option value="+64">🇳🇿 +64</option>
                 </select>
-                <input type="tel" class="text-input" id="phoneNumber" placeholder="6 12 34 56 78" />
+                <input type="tel" class="text-input" id="phoneNumber" placeholder="6 12 34 56 78" aria-label="Numéro de téléphone" />
               </div>
             </div>
           </div>
@@ -156,26 +157,28 @@
           <!-- WIFI -->
           <div class="content-form" id="form-wifi">
             <div class="form-row">
-              <span class="sub-label">Nom du réseau (SSID)</span>
-              <input type="text" class="text-input" id="wifiSSID" placeholder="MonReseau_5G" />
+              <label class="sub-label" for="wifiSSID">Nom du réseau (SSID)</label>
+              <input type="text" class="text-input" id="wifiSSID" placeholder="MonReseau_5G" aria-label="Nom du réseau WiFi (SSID)" />
             </div>
             <div class="form-row">
-              <span class="sub-label">Mot de passe</span>
+              <label class="sub-label" for="wifiPassword">Mot de passe</label>
               <div class="password-row">
-                <input type="password" class="text-input" id="wifiPassword" placeholder="MotDePasse123" />
-                <button class="toggle-pw-btn" id="toggleWifiPw" title="Afficher/masquer">👁</button>
+                <input type="password" class="text-input" id="wifiPassword" placeholder="MotDePasse123" aria-label="Mot de passe du réseau WiFi" />
+                <button class="toggle-pw-btn" id="toggleWifiPw" aria-label="Afficher ou masquer le mot de passe" title="Afficher/masquer">👁</button>
               </div>
             </div>
             <div class="form-row">
-              <span class="sub-label">Chiffrement</span>
-              <div class="radio-group">
-                <label class="radio-label"><input type="radio" name="wifiEnc" value="WPA" checked /> WPA / WPA2</label>
-                <label class="radio-label"><input type="radio" name="wifiEnc" value="WEP" /> WEP</label>
-                <label class="radio-label"><input type="radio" name="wifiEnc" value="nopass" /> Aucun (ouvert)</label>
-              </div>
+              <fieldset class="radio-fieldset">
+                <legend class="sub-label">Chiffrement</legend>
+                <div class="radio-group">
+                  <label class="radio-label"><input type="radio" name="wifiEnc" value="WPA" checked /> WPA / WPA2</label>
+                  <label class="radio-label"><input type="radio" name="wifiEnc" value="WEP" /> WEP</label>
+                  <label class="radio-label"><input type="radio" name="wifiEnc" value="nopass" /> Aucun (ouvert)</label>
+                </div>
+              </fieldset>
             </div>
             <div class="form-row">
-              <label class="checkbox-label">
+              <label class="checkbox-label" for="wifiHidden">
                 <input type="checkbox" id="wifiHidden" /> Réseau masqué (hidden SSID)
               </label>
             </div>
@@ -184,9 +187,10 @@
           <!-- SMS -->
           <div class="content-form" id="form-sms">
             <div class="form-row">
-              <span class="sub-label">Numéro de téléphone</span>
+              <label class="sub-label" for="smsNumber">Numéro de téléphone</label>
               <div class="phone-row">
-                <select class="select-input country-select" id="smsCountry">
+                <label for="smsCountry" class="sr-only">Indicatif pays SMS</label>
+                <select class="select-input country-select" id="smsCountry" aria-label="Indicatif pays pour le SMS">
                   <option value="+33">🇫🇷 +33</option>
                   <option value="+32">🇧🇪 +32</option>
                   <option value="+41">🇨🇭 +41</option>
@@ -200,12 +204,12 @@
                   <option value="+216">🇹🇳 +216</option>
                   <option value="+221">🇸🇳 +221</option>
                 </select>
-                <input type="tel" class="text-input" id="smsNumber" placeholder="6 12 34 56 78" />
+                <input type="tel" class="text-input" id="smsNumber" placeholder="6 12 34 56 78" aria-label="Numéro de téléphone pour SMS" />
               </div>
             </div>
             <div class="form-row">
-              <span class="sub-label">Message (optionnel)</span>
-              <textarea class="qr-input" id="smsMessage" rows="3" placeholder="Votre message..."></textarea>
+              <label class="sub-label" for="smsMessage">Message (optionnel)</label>
+              <textarea class="qr-input" id="smsMessage" rows="3" placeholder="Votre message..." aria-label="Corps du message SMS"></textarea>
             </div>
           </div>
 
@@ -213,45 +217,45 @@
           <div class="content-form" id="form-vcard">
             <div class="form-grid-2">
               <div class="form-row">
-                <span class="sub-label">Prénom</span>
-                <input type="text" class="text-input" id="vcardFirst" placeholder="Jean" />
+                <label class="sub-label" for="vcardFirst">Prénom</label>
+                <input type="text" class="text-input" id="vcardFirst" placeholder="Jean" aria-label="Prénom du contact" />
               </div>
               <div class="form-row">
-                <span class="sub-label">Nom</span>
-                <input type="text" class="text-input" id="vcardLast" placeholder="Dupont" />
+                <label class="sub-label" for="vcardLast">Nom</label>
+                <input type="text" class="text-input" id="vcardLast" placeholder="Dupont" aria-label="Nom de famille du contact" />
               </div>
             </div>
             <div class="form-row">
-              <span class="sub-label">Organisation</span>
-              <input type="text" class="text-input" id="vcardOrg" placeholder="Mon Entreprise" />
+              <label class="sub-label" for="vcardOrg">Organisation</label>
+              <input type="text" class="text-input" id="vcardOrg" placeholder="Mon Entreprise" aria-label="Organisation ou entreprise" />
             </div>
             <div class="form-row">
-              <span class="sub-label">Titre / Poste</span>
-              <input type="text" class="text-input" id="vcardTitle" placeholder="Directeur Commercial" />
+              <label class="sub-label" for="vcardTitle">Titre / Poste</label>
+              <input type="text" class="text-input" id="vcardTitle" placeholder="Directeur Commercial" aria-label="Titre ou poste occupé" />
             </div>
             <div class="form-row">
-              <span class="sub-label">Téléphone</span>
-              <input type="tel" class="text-input" id="vcardPhone" placeholder="+33 6 12 34 56 78" />
+              <label class="sub-label" for="vcardPhone">Téléphone</label>
+              <input type="tel" class="text-input" id="vcardPhone" placeholder="+33 6 12 34 56 78" aria-label="Numéro de téléphone du contact" />
             </div>
             <div class="form-row">
-              <span class="sub-label">Email</span>
-              <input type="email" class="text-input" id="vcardEmail" placeholder="jean.dupont@exemple.com" />
+              <label class="sub-label" for="vcardEmail">Email</label>
+              <input type="email" class="text-input" id="vcardEmail" placeholder="jean.dupont@exemple.com" aria-label="Adresse email du contact" />
             </div>
             <div class="form-row">
-              <span class="sub-label">Site web</span>
-              <input type="url" class="text-input" id="vcardUrl" placeholder="https://exemple.com" />
+              <label class="sub-label" for="vcardUrl">Site web</label>
+              <input type="url" class="text-input" id="vcardUrl" placeholder="https://exemple.com" aria-label="Site web du contact" />
             </div>
             <div class="form-row">
-              <span class="sub-label">Adresse</span>
-              <input type="text" class="text-input" id="vcardAddress" placeholder="1 rue de la Paix, 75001 Paris" />
+              <label class="sub-label" for="vcardAddress">Adresse</label>
+              <input type="text" class="text-input" id="vcardAddress" placeholder="1 rue de la Paix, 75001 Paris" aria-label="Adresse postale du contact" />
             </div>
           </div>
 
           <!-- FILE -->
           <div class="content-form" id="form-file">
             <div class="form-row">
-              <span class="sub-label">Lien vers le fichier hébergé</span>
-              <input type="url" class="text-input" id="fileUrlInput" placeholder="https://drive.google.com/… ou https://dropbox.com/…" />
+              <label class="sub-label" for="fileUrlInput">Lien vers le fichier hébergé</label>
+              <input type="url" class="text-input" id="fileUrlInput" placeholder="https://drive.google.com/… ou https://dropbox.com/…" aria-label="Lien de partage vers le fichier hébergé" />
             </div>
             <div class="file-url-hint">
               <span>Hébergez votre fichier sur</span>
@@ -269,26 +273,26 @@
           <label class="field-label"><span class="label-num">03</span> PERSONNALISATION</label>
           <div class="custom-grid">
             <div class="custom-field">
-              <span class="sub-label">Couleur QR</span>
+              <label class="sub-label" for="fgColor">Couleur QR</label>
               <div class="color-wrap">
-                <input type="color" id="fgColor" value="#000000" class="color-input" />
-                <span class="color-val" id="fgColorVal">#000000</span>
+                <input type="color" id="fgColor" value="#000000" class="color-input" aria-label="Couleur des modules du QR code" />
+                <span class="color-val" id="fgColorVal" aria-live="polite">#000000</span>
               </div>
             </div>
             <div class="custom-field">
-              <span class="sub-label">Fond</span>
+              <label class="sub-label" for="bgColor">Fond</label>
               <div class="color-wrap">
-                <input type="color" id="bgColor" value="#ffffff" class="color-input" />
-                <span class="color-val" id="bgColorVal">#ffffff</span>
+                <input type="color" id="bgColor" value="#ffffff" class="color-input" aria-label="Couleur de fond du QR code" />
+                <span class="color-val" id="bgColorVal" aria-live="polite">#ffffff</span>
               </div>
             </div>
             <div class="custom-field">
-              <span class="sub-label">Taille (px)</span>
-              <input type="number" id="qrSize" value="300" min="100" max="800" step="50" class="num-input" />
+              <label class="sub-label" for="qrSize">Taille (px)</label>
+              <input type="number" id="qrSize" value="300" min="100" max="800" step="50" class="num-input" aria-label="Taille du QR code en pixels" />
             </div>
             <div class="custom-field">
-              <span class="sub-label">Correction</span>
-              <select id="ecLevel" class="select-input">
+              <label class="sub-label" for="ecLevel">Correction</label>
+              <select id="ecLevel" class="select-input" aria-label="Niveau de correction d'erreur du QR code">
                 <option value="L">L — 7%</option>
                 <option value="M" selected>M — 15%</option>
                 <option value="Q">Q — 25%</option>
@@ -316,10 +320,10 @@
               <span>Glissez une image ou <button class="inline-btn" id="logoPickBtn">parcourez</button></span>
             </div>
             <div class="logo-preview-wrap" id="logoPreviewWrap" style="display:none;">
-              <img id="logoPreviewImg" class="logo-thumb" alt="logo" />
+              <img id="logoPreviewImg" class="logo-thumb" alt="Aperçu du logo sélectionné pour le centre du QR code" />
               <div class="logo-controls">
-                <label class="sub-label">Taille logo : <span id="logoSizeVal">20</span>% <span class="logo-size-note">(max 30%)</span></label>
-                <input type="range" id="logoSize" min="10" max="30" value="20" class="range-input" />
+                <label class="sub-label" for="logoSize">Taille logo : <span id="logoSizeVal">20</span>% <span class="logo-size-note">(max 30%)</span></label>
+                <input type="range" id="logoSize" min="10" max="30" value="20" class="range-input" aria-label="Taille du logo en pourcentage de la taille du QR code" />
                 <button class="remove-logo-btn" id="removeLogo">✕ Supprimer</button>
               </div>
             </div>
@@ -328,8 +332,8 @@
 
         <!-- 05 ÉTIQUETTE -->
         <div class="panel-section">
-          <label class="field-label"><span class="label-num">05</span> ÉTIQUETTE POUR HISTORIQUE (optionnel)</label>
-          <input type="text" id="qrLabel" placeholder="ex: Menu restaurant Été 2025" class="text-input" />
+          <label class="field-label" for="qrLabel"><span class="label-num">05</span> ÉTIQUETTE POUR HISTORIQUE (optionnel)</label>
+          <input type="text" id="qrLabel" placeholder="ex: Menu restaurant Été 2025" class="text-input" aria-label="Étiquette pour identifier ce QR code dans l'historique" />
         </div>
 
       </div>
@@ -392,19 +396,20 @@
       </div>
       <div class="batch-controls">
         <div class="batch-left">
-          <textarea id="batchInput" class="batch-textarea" placeholder="https://exemple.com&#10;https://google.com&#10;Texte #3..." rows="12"></textarea>
+          <label for="batchInput" class="sr-only">Liste d'URLs ou textes à encoder, un par ligne</label>
+          <textarea id="batchInput" class="batch-textarea" placeholder="https://exemple.com&#10;https://google.com&#10;Texte #3..." rows="12" aria-label="Liste d'URLs ou textes à encoder en batch, un par ligne"></textarea>
           <div class="batch-options">
             <div class="custom-field">
-              <span class="sub-label">Couleur QR</span>
-              <input type="color" id="batchFg" value="#000000" class="color-input" />
+              <label class="sub-label" for="batchFg">Couleur QR</label>
+              <input type="color" id="batchFg" value="#000000" class="color-input" aria-label="Couleur des QR codes batch" />
             </div>
             <div class="custom-field">
-              <span class="sub-label">Fond</span>
-              <input type="color" id="batchBg" value="#ffffff" class="color-input" />
+              <label class="sub-label" for="batchBg">Fond</label>
+              <input type="color" id="batchBg" value="#ffffff" class="color-input" aria-label="Couleur de fond des QR codes batch" />
             </div>
             <div class="custom-field">
-              <span class="sub-label">Taille</span>
-              <input type="number" id="batchSize" value="200" min="100" max="400" step="50" class="num-input" />
+              <label class="sub-label" for="batchSize">Taille</label>
+              <input type="number" id="batchSize" value="200" min="100" max="400" step="50" class="num-input" aria-label="Taille des QR codes batch en pixels" />
             </div>
           </div>
           <div class="batch-actions">
