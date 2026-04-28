@@ -1291,7 +1291,8 @@ body {
 .corner-btn svg { color: currentColor; }
 
 /* ============================================================
-   FOOTER*/
+   PRESET LOGOS
+   ============================================================ */
 .preset-logos-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1314,7 +1315,7 @@ body {
   font-size: 11px;
 }
 
-.preset-logo-btn svg { width: 28px; height: 28px; }
+.preset-logo-btn img { width: 32px; height: 32px; border-radius: 4px; display: block; }
 .preset-logo-btn:hover { border-color: var(--border-accent); }
 .preset-logo-btn.active { border-color: var(--accent); background: var(--accent-glow); }
 
