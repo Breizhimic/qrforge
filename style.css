@@ -76,16 +76,10 @@
 }
 
 /* ── Fieldset reset (used for radio groups) ── */
-.radio-fieldset {
-  border: none;
-  padding: 0;
-  margin: 0;
-}
-
-.radio-fieldset legend.sub-label {
-  float: left;
-  width: 100%;
-  margin-bottom: 6px;
+.radio-group-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 html { scroll-behavior: smooth; }
