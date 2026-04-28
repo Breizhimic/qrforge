@@ -214,6 +214,7 @@ async function initPresetLogos() {
       const imgEl = document.createElement('img');
       imgEl.src = pngUrl || '';
       imgEl.width = 32; imgEl.height = 32;
+      imgEl.alt = `Logo ${logo.label}`;
       imgEl.style.borderRadius = '4px';
       btn.appendChild(imgEl);
       // Cache PNG for canvas use
