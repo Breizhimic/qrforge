@@ -1,4 +1,4 @@
-# QR Code Generator 🎯
+# QR Code Generator
 
 Générateur de QR codes gratuit et open source, avec version Pro.
 
