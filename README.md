@@ -16,12 +16,5 @@ Générateur de QR codes gratuit et open source, avec version Pro.
 
 [Site en ligne](https://qrcodegenerator.fr)
 
-## Installation locale
-```bash
-git clone https://github.com/breizhimic/qrcode-generator.git
-cd qrcode-generator
-# Ouvre index.html dans le navigateur
-```
-
 ## License
 MIT
